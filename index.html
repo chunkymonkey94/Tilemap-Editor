@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title>Tile Map Generator</title>
+		
+		<script src="jquery-3.1.1.js" type="text/javascript"></script>
+		<script src="canvas.js" type="text/javascript"></script>
+		<script src="sprite.js" type="text/javascript"></script>
+		
+		<script language="javascript">
+			var Context = null;
+			var BLOCK_W = 32;
+			var BLOCK_H = 32;
+			
+			var tilemapX = null;
+			var tilemapY = null;
+			var tileIndex = null;
+			
+			var map = [ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						0,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,0,1,1,1,1,0,0,
+						0,0,1,0,0,1,0,1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,
+						0,0,1,1,1,1,0,1,1,1,1,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,
+						0,0,1,0,0,1,0,1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,
+						0,0,1,0,0,1,0,1,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,0,0,
+						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						0,1,0,0,0,1,0,1,1,1,1,0,1,1,1,0,0,1,0,0,0,1,1,1,0,0,
+						0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,0,1,0,0,1,0,
+						0,1,0,1,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,0,
+						0,1,0,1,0,1,0,1,0,0,1,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,
+						0,0,1,0,1,0,0,1,1,1,1,0,1,0,0,1,0,1,1,1,0,1,1,1,0,0,
+						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+						3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3 ];
+						
+			var mapIndex = 0;
+
+			var optionsIndex = 2;
+			
+			var empty = new Sprite("empty.png");
+			var wall = new Sprite("wall.png");
+			var water = new Sprite("water.png");
+
+			var clear = new Sprite("clear.png");
+			var reset = new Sprite("reset.png");
+			var options = new Sprite("options.png");
+
+			var selected_1 = new Sprite("selected_1.png");
+			var selected_2 = new Sprite("selected_2.png");
+			var selected_option = new Sprite("selected_option.png");
+			
+			$(document).ready(function() {
+				Context = new HTML("game", "gray", 832, 544);
+				
+				$( "#game" ).mousemove(function(event){
+				
+					var mouseX = event.pageX;
+					var mouseY = event.pageY;
+
+					var w = window.innerWidth;
+
+					var canvas_W = (w - 832)/2;
+
+					if (canvas_W < 0) {
+						canvas_W = 0;
+					}
+					else {
+						canvas_W = (w - 832)/2;
+					}
+
+					window.tilemapX = Math.floor((mouseX - canvas_W)/32);
+					window.tilemapY = Math.floor((mouseY - 32)/32);
+					
+					window.tileIndex = ((window.tilemapY * 26) + window.tilemapX);
+;
+				});
+
+				$( "#game" ).click(function() {
+					console.log("click");
+
+					if (tilemapX >= 0 && tilemapX <= 25 && tilemapY >= 0 && tilemapY <= 13) {
+						map[tileIndex] = optionsIndex;
+					}
+					else if(tilemapX >= 1 && tilemapX <= 3 && tilemapY >= 15 && tilemapY <= 16) {
+						map = [ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+								3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+								3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3 ];
+					}
+					else if(tilemapX >= 5 && tilemapX <= 7 && tilemapY >= 15 && tilemapY <= 16) {
+						map = [ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,0,1,1,1,1,0,0,
+								0,0,1,0,0,1,0,1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,
+								0,0,1,1,1,1,0,1,1,1,1,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,
+								0,0,1,0,0,1,0,1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,
+								0,0,1,0,0,1,0,1,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								0,1,0,0,0,1,0,1,1,1,1,0,1,1,1,0,0,1,0,0,0,1,1,1,0,0,
+								0,1,0,0,0,1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,0,1,0,0,1,0,
+								0,1,0,1,0,1,0,1,0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,0,1,0,
+								0,1,0,1,0,1,0,1,0,0,1,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,
+								0,0,1,0,1,0,0,1,1,1,1,0,1,0,0,1,0,1,1,1,0,1,1,1,0,0,
+								0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+								3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+								3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+								3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3 ];
+					}
+					else if(tilemapX >= 19 && tilemapX <= 20 && tilemapY >= 15 && tilemapY <= 16) {
+						optionsIndex = 2;
+					}
+					else if(tilemapX >= 21 && tilemapX <= 22 && tilemapY >= 15 && tilemapY <= 16) {
+						optionsIndex = 1;
+					}
+					else if(tilemapX >= 23 && tilemapX <= 24 && tilemapY >= 15 && tilemapY <= 16) {
+						optionsIndex = 0;
+					}
+				});
+			});
+			
+			setInterval(function() {
+				console.log("tileX:" + window.tilemapX + ", tileY:" + window.tilemapY + "; tileIndex:" + window.tileIndex);
+				
+				mapIndex = 0;
+
+				clear.draw2(32, 480, 96, 64);
+				reset.draw2(160, 480, 96, 64);
+				options.draw2(608, 480, 192, 64);
+			
+				for (var y=0; y<17; y++) {
+					for (var x=0; x<26; x++, mapIndex++) {
+						var tile_x = BLOCK_W * x;
+						var tile_y = BLOCK_H * y;
+						
+						tileType = map[mapIndex];
+						
+						if (tileType == 0) {
+							empty.draw(tile_x, tile_y);
+						}
+						else if (tileType == 1) {
+							wall.draw(tile_x, tile_y);
+						}
+						else if (tileType == 2) {
+							water.draw(tile_x, tile_y);
+						}
+						else {
+							null;
+						}
+					}
+				}
+
+				cursor();
+
+				if (optionsIndex == 2) {
+					selected_option.draw2(608, 480, 64, 64);
+				}
+				else if (optionsIndex == 1) {
+					selected_option.draw2(672, 480, 64, 64);
+				}
+				else if (optionsIndex == 0) {
+					selected_option.draw2(736, 480, 64, 64);
+				}
+
+			}, 24);
+			var cursor = function() {
+					if (tilemapX >= 0 && tilemapX <= 25 && tilemapY >= 0 && tilemapY <= 13) {
+						selected_1.draw((BLOCK_W * tilemapX), (BLOCK_H * tilemapY));
+					}
+					else if(tilemapX >= 1 && tilemapX <= 3 && tilemapY >= 15 && tilemapY <= 16) {
+						selected_2.draw2(32, 480, 96, 64);
+					}
+					else if(tilemapX >= 5 && tilemapX <= 7 && tilemapY >= 15 && tilemapY <= 16) {
+						selected_2.draw2(160, 480, 96, 64);
+					}
+					else if(tilemapX >= 19 && tilemapX <= 20 && tilemapY >= 15 && tilemapY <= 16) {
+						selected_1.draw2(608, 480, 64, 64);
+					}
+					else if(tilemapX >= 21 && tilemapX <= 22 && tilemapY >= 15 && tilemapY <= 16) {
+						selected_1.draw2(672, 480, 64, 64);
+					}
+					else if(tilemapX >= 23 && tilemapX <= 24 && tilemapY >= 15 && tilemapY <= 16) {
+						selected_1.draw2(736, 480, 64, 64);
+					}
+					
+			};
+		</script>
+		
+		<style>
+			html{margin-left:auto; margin-right:auto; min-width:832px; min-height:576px;}
+			#container{margin-left:auto; margin-right:auto; margin-top:32px; background-color:black; width:832px; height:544px; border:solid gray 4px;}
+			body{margin:0px; background-color:black; width:100%; height:544px;}
+		</style>
+	</head>
+	
+	<body>
+	<div id="container">
+		<canvas id="game"></canvas>
+	</div>
+	</body>
+</html>
